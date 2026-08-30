@@ -1,0 +1,626 @@
+<!doctype html>
+<html lang="en">
+<!--
+  ═══════════════════════════════════════════════════════════════════════════
+  SHARE-SITE TEMPLATE — monochrome liquid glass
+  ═══════════════════════════════════════════════════════════════════════════
+  A house style for share sites (bake-offs, comparisons, reports, demo
+  galleries). Monochrome palette, Apple-style liquid glass:
+  frosted translucent panels, saturated blur, specular edge highlights,
+  continuous rounded corners, pill controls.
+
+  RULES (do not break these when adapting):
+  • 100% self-contained: opens by double-clicking this file (file://).
+    No web server, no build step, no npm, no CDN, no fetch() of local files.
+  • Inline all CSS/JS. Data lives in an inline <script> as a JS object if needed.
+  • Media (videos/images) referenced by RELATIVE path inside this folder,
+    so the whole folder zips and travels.
+  • Dark mode is the default; keep the light/dark toggle.
+  • Keep the logo lock-up in the header (swap in your own mark + wordmark).
+  • Stay monochrome: hierarchy comes from opacity, weight, and glass depth —
+    not hue. (Filled white chip = the winner; outline chips = everything else.)
+
+  HOW TO USE:
+  1. Copy this whole folder, rename it for the project.
+  2. Edit the header title/subtitle and the hero (spots marked ✏️).
+  3. Delete the section blocks you don't need (each is marked with
+    ── SECTION: … ──), keep the ones you do, duplicate cards as needed.
+  4. Drop media into ./media/ and point tiles at it.
+  ═══════════════════════════════════════════════════════════════════════════
+-->
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Project Title</title>
+  <style>
+    /* ── Design tokens (monochrome; hierarchy via opacity & depth, not hue) ── */
+    :root {
+      /* dark theme (default) */
+      --bg: #08080a;
+      --bg-grad-1: rgba(255, 255, 255, 0.055);  /* soft top light */
+      --bg-grad-2: rgba(255, 255, 255, 0.025);
+      --glass: rgba(255, 255, 255, 0.055);       /* frosted panel fill */
+      --glass-raised: rgba(255, 255, 255, 0.09);
+      --glass-solid: #131316;
+      --text: rgba(255, 255, 255, 0.96);
+      --text-muted: rgba(255, 255, 255, 0.55);
+      --text-faint: rgba(255, 255, 255, 0.34);
+      --edge: rgba(255, 255, 255, 0.12);          /* hairline border */
+      --edge-strong: rgba(255, 255, 255, 0.2);
+      --specular: rgba(255, 255, 255, 0.22);      /* top inner highlight */
+      --specular-soft: rgba(255, 255, 255, 0.07);
+      --ink: #ffffff;                             /* the one "accent": pure mono */
+      --ink-contrast: #0a0a0c;                    /* text on filled ink */
+      --ink-soft: rgba(255, 255, 255, 0.1);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.5), 0 2px 8px rgba(0, 0, 0, 0.3);
+      --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.35);
+      --radius-xl: 1.6rem;    /* hero panels, media cards */
+      --radius-lg: 1.25rem;   /* standard panels */
+      --radius-md: 0.9rem;
+      --blur: blur(32px) saturate(170%);
+    }
+    [data-theme="light"] {
+      --bg: #f5f5f7;
+      --bg-grad-1: rgba(255, 255, 255, 0.9);
+      --bg-grad-2: rgba(0, 0, 0, 0.03);
+      --glass: rgba(255, 255, 255, 0.58);
+      --glass-raised: rgba(255, 255, 255, 0.82);
+      --glass-solid: #ffffff;
+      --text: rgba(0, 0, 0, 0.92);
+      --text-muted: rgba(0, 0, 0, 0.55);
+      --text-faint: rgba(0, 0, 0, 0.36);
+      --edge: rgba(0, 0, 0, 0.08);
+      --edge-strong: rgba(0, 0, 0, 0.14);
+      --specular: rgba(255, 255, 255, 0.95);
+      --specular-soft: rgba(255, 255, 255, 0.55);
+      --ink: #111114;
+      --ink-contrast: #ffffff;
+      --ink-soft: rgba(0, 0, 0, 0.06);
+      --shadow: 0 24px 60px rgba(0, 0, 0, 0.12), 0 2px 8px rgba(0, 0, 0, 0.06);
+      --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.08);
+    }
+
+    /* ── Base ── */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.55;
+      min-height: 100vh;
+    }
+    /* Fixed monochrome ambience: one soft light source, top-left */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(1100px 600px at 18% -12%, var(--bg-grad-1), transparent 62%),
+        radial-gradient(900px 600px at 88% 8%, var(--bg-grad-2), transparent 58%);
+      pointer-events: none;
+    }
+    /* Glitch dust layer — sits between the ambient glow and the content;
+       glass panels blur it, which sells the depth. */
+    #dust {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+    }
+    code, kbd, pre, .meta {
+      font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+    }
+    a { color: var(--text); text-decoration: underline; text-decoration-color: var(--text-faint); text-underline-offset: 3px; }
+    a:hover { text-decoration-color: var(--text); }
+    :focus-visible { outline: 2px solid var(--text-muted); outline-offset: 2px; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { transition-duration: 0.01ms !important; animation-duration: 0.01ms !important; }
+    }
+
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+
+    /* ── Liquid glass (the core surface primitive) ─────────────────────────
+       Frosted fill + saturated blur + specular top edge + soft drop shadow.
+       .glass-raised = one layer up (menus, winner cards, header pills). */
+    .glass {
+      position: relative;
+      background: var(--glass);
+      border: 1px solid var(--edge);
+      border-radius: var(--radius-lg);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      box-shadow:
+        inset 0 1px 0 var(--specular),
+        inset 0 -1px 0 var(--specular-soft),
+        var(--shadow-soft);
+    }
+    .glass-raised {
+      background: var(--glass-raised);
+      border-color: var(--edge-strong);
+      box-shadow:
+        inset 0 1px 0 var(--specular),
+        inset 0 -1px 0 var(--specular-soft),
+        var(--shadow);
+    }
+    /* diagonal sheen across glass, like light catching the pane */
+    .glass::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: linear-gradient(115deg, var(--specular-soft) 0%, transparent 32%);
+      pointer-events: none;
+    }
+
+    /* ── Header ── */
+    header.site {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      background: color-mix(in srgb, var(--bg) 62%, transparent);
+      border-bottom: 1px solid var(--edge);
+      box-shadow: inset 0 -1px 0 var(--specular-soft);
+    }
+    header.site .bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+    }
+    .lockup { display: flex; align-items: center; gap: 9px; }
+    .lockup svg { color: var(--text); flex: none; }
+    .lockup .word { font-size: 17px; font-weight: 700; letter-spacing: -0.02em; line-height: 1; }
+    .lockup .product { font-size: 14px; font-weight: 500; color: var(--text-muted); line-height: 1; margin-top: 1px; }
+    header.site .spacer { flex: 1; }
+
+    /* theme toggle: glass pill */
+    .theme-toggle {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 36px; height: 36px;
+      border-radius: 999px;
+      border: 1px solid var(--edge);
+      background: var(--glass);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      box-shadow: inset 0 1px 0 var(--specular);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: color 140ms, border-color 140ms, background 140ms;
+    }
+    .theme-toggle:hover { color: var(--text); border-color: var(--edge-strong); background: var(--glass-raised); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+    [data-theme="light"] .icon-sun { display: none; }
+    :root:not([data-theme="light"]) .icon-moon { display: none; }
+
+    /* ── Hero ── */
+    .hero { padding: 76px 0 40px; }
+    .hero .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      color: var(--text-muted);
+      background: var(--glass);
+      border: 1px solid var(--edge);
+      border-radius: 999px;
+      padding: 6px 14px;
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      box-shadow: inset 0 1px 0 var(--specular);
+      margin-bottom: 20px;
+    }
+    .hero h1 {
+      font-size: clamp(30px, 5vw, 48px);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      max-width: 20ch;
+    }
+    .hero h1 .grad {
+      /* monochrome gradient: bright to faded, like etched glass */
+      background: linear-gradient(180deg, var(--text) 30%, var(--text-faint) 130%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .hero p.sub { margin-top: 16px; font-size: 17px; color: var(--text-muted); max-width: 58ch; }
+    .hero .meta-line { margin-top: 20px; font-size: 12.5px; color: var(--text-faint); }
+
+    /* ── Sections ── */
+    section.block { padding: 26px 0; }
+    .section-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 16px; }
+    .section-head h2 { font-size: 21px; font-weight: 700; letter-spacing: -0.02em; }
+    .section-head .hint { font-size: 13px; color: var(--text-faint); }
+
+    /* ── Stat tiles ── */
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; }
+    .stat { padding: 18px 20px; }
+    .stat .label { font-size: 11.5px; font-weight: 600; letter-spacing: 0.07em; text-transform: uppercase; color: var(--text-faint); }
+    .stat .value { font-size: 28px; font-weight: 700; letter-spacing: -0.02em; margin-top: 4px; }
+    .stat .delta { font-size: 12.5px; margin-top: 2px; color: var(--text-muted); }
+
+    /* ── Comparison / media grid ── */
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+    .card { overflow: hidden; display: flex; flex-direction: column; border-radius: var(--radius-xl); }
+    .card .media {
+      aspect-ratio: 16 / 9;
+      background:
+        radial-gradient(120% 100% at 20% 0%, var(--specular-soft), transparent 55%),
+        var(--glass-solid);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--text-faint); font-size: 13px;
+      border-bottom: 1px solid var(--edge);
+    }
+    .card .media video, .card .media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .card .body { padding: 15px 18px 17px; display: flex; flex-direction: column; gap: 6px; flex: 1; }
+    .card .title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .card h3 { font-size: 15px; font-weight: 650; letter-spacing: -0.01em; }
+    .card p { font-size: 13.5px; color: var(--text-muted); }
+    .card .foot { margin-top: auto; padding-top: 8px; font-size: 12px; color: var(--text-faint); }
+
+    /* ── Chips / badges — monochrome: the winner is FILLED, everything else
+         is outline glass; strength reads through opacity, not color. ── */
+    .chip {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 11.5px; font-weight: 600;
+      padding: 4px 11px; border-radius: 999px;
+      border: 1px solid var(--edge-strong);
+      color: var(--text-muted);
+      background: var(--ink-soft);
+      box-shadow: inset 0 1px 0 var(--specular-soft);
+      white-space: nowrap;
+    }
+    .chip.strong { color: var(--text); border-color: var(--edge-strong); }
+    .chip.fill {
+      color: var(--ink-contrast);
+      background: var(--ink);
+      border-color: transparent;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+    .chip.dim { color: var(--text-faint); background: transparent; border-color: var(--edge); box-shadow: none; }
+
+    /* ── Table ── */
+    .table-scroll { overflow-x: auto; }
+    table.data { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    table.data th {
+      text-align: left; font-size: 11.5px; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--text-faint);
+      padding: 13px 18px;
+      border-bottom: 1px solid var(--edge-strong);
+    }
+    table.data td { padding: 12px 18px; border-bottom: 1px solid var(--edge); }
+    table.data tr:last-child td { border-bottom: none; }
+    table.data td.num, table.data th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+    /* ── Notes / prose panel ── */
+    .prose { padding: 22px 26px; font-size: 14.5px; color: var(--text-muted); }
+    .prose h3 { color: var(--text); font-size: 15px; margin-bottom: 8px; }
+    .prose p + p { margin-top: 10px; }
+    .prose strong { color: var(--text); }
+
+    /* ── Footer ── */
+    footer.site {
+      margin-top: 40px;
+      border-top: 1px solid var(--edge);
+      padding: 26px 0 40px;
+      font-size: 12.5px;
+      color: var(--text-faint);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Glitch dust background -->
+  <canvas id="dust" aria-hidden="true"></canvas>
+
+  <!-- ── HEADER: logo lock-up + product name + theme toggle ── -->
+  <header class="site">
+    <div class="wrap bar">
+      <span class="lockup">
+        <!-- ✏️ placeholder mark — swap for your own logo SVG -->
+        <svg width="20" height="20" viewBox="0 0 100 100" fill="currentColor" aria-hidden="true">
+          <path d="M50 4 L96 50 L50 96 L4 50 Z M50 30 L30 50 L50 70 L70 50 Z" fill-rule="evenodd" />
+        </svg>
+        <span class="word">Brand</span> <!-- ✏️ your name / brand -->
+        <span class="product">Project Title</span> <!-- ✏️ product / report name -->
+      </span>
+      <span class="spacer"></span>
+      <button class="theme-toggle" id="themeToggle" title="Toggle light / dark" aria-label="Toggle light / dark theme">
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="wrap">
+
+    <!-- ── SECTION: hero ── -->
+    <div class="hero">
+      <span class="eyebrow">Bake-off · August 2026</span> <!-- ✏️ context chip -->
+      <h1><span class="grad">Model comparison for Client Name</span></h1> <!-- ✏️ -->
+      <p class="sub">
+        One-line framing of what this page shows and how to read it. Keep it to
+        two sentences — the sections below carry the detail. <!-- ✏️ -->
+      </p>
+      <p class="meta-line meta">Prepared by Your Name · 2026-08-27</p> <!-- ✏️ -->
+    </div>
+
+    <!-- ── SECTION: stat tiles (headline numbers) — delete if unused ── -->
+    <section class="block">
+      <div class="stats">
+        <div class="glass stat">
+          <div class="label">Candidates</div>
+          <div class="value">6</div>
+          <div class="delta">across 3 providers</div>
+        </div>
+        <div class="glass stat">
+          <div class="label">Prompts run</div>
+          <div class="value">48</div>
+          <div class="delta">all completed</div>
+        </div>
+        <div class="glass stat">
+          <div class="label">Winner</div>
+          <div class="value">Model B</div>
+          <div class="delta">by blind panel vote</div>
+        </div>
+        <div class="glass stat">
+          <div class="label">Avg cost / output</div>
+          <div class="value">$0.14</div>
+          <div class="delta">2.3× cheaper vs incumbent</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION: media comparison grid — the bake-off workhorse.
+         Duplicate cards per candidate; point <video>/<img> at ./media/…
+         (relative paths only, so the zipped folder works anywhere).
+         Give the winning card class="glass glass-raised card" + a .chip.fill. ── -->
+    <section class="block">
+      <div class="section-head">
+        <h2>Side-by-side outputs</h2>
+        <span class="hint">same prompt, default settings, first take — no cherry-picking</span>
+      </div>
+      <div class="grid">
+        <div class="glass card">
+          <div class="media">
+            <!-- ✏️ swap placeholder for real media:
+            <video src="media/model-a-prompt-01.mp4" controls muted playsinline></video>
+            or  <img src="media/model-a-prompt-01.png" alt="Model A output" /> -->
+            media/model-a-prompt-01.mp4
+          </div>
+          <div class="body">
+            <div class="title-row">
+              <h3>Model A</h3>
+              <span class="chip strong">7.5 / 10</span>
+            </div>
+            <p>One-line read on this output — what's strong, what's off.</p>
+            <div class="foot meta">1080p · 6s · $0.12 · 41s latency</div>
+          </div>
+        </div>
+        <div class="glass glass-raised card">
+          <div class="media">media/model-b-prompt-01.mp4</div>
+          <div class="body">
+            <div class="title-row">
+              <h3>Model B</h3>
+              <span class="chip fill">★ pick</span>
+            </div>
+            <p>One-line read on this output — what's strong, what's off.</p>
+            <div class="foot meta">1080p · 6s · $0.15 · 38s latency</div>
+          </div>
+        </div>
+        <div class="glass card">
+          <div class="media">media/model-c-prompt-01.mp4</div>
+          <div class="body">
+            <div class="title-row">
+              <h3>Model C</h3>
+              <span class="chip dim">5 / 10</span>
+            </div>
+            <p>One-line read on this output — what's strong, what's off.</p>
+            <div class="foot meta">720p · 6s · $0.08 · 64s latency</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── SECTION: results table — delete if unused ── -->
+    <section class="block">
+      <div class="section-head">
+        <h2>Scorecard</h2>
+        <span class="hint">panel of 4, blind, 1–10 per axis</span>
+      </div>
+      <div class="glass table-scroll">
+        <table class="data">
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th class="num">Quality</th>
+              <th class="num">Prompt adherence</th>
+              <th class="num">Consistency</th>
+              <th class="num">Cost / output</th>
+              <th>Verdict</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Model B</strong></td>
+              <td class="num">8.6</td>
+              <td class="num">8.1</td>
+              <td class="num">7.9</td>
+              <td class="num">$0.15</td>
+              <td><span class="chip fill">recommended</span></td>
+            </tr>
+            <tr>
+              <td>Model A</td>
+              <td class="num">7.4</td>
+              <td class="num">7.8</td>
+              <td class="num">7.2</td>
+              <td class="num">$0.12</td>
+              <td><span class="chip strong">strong runner-up</span></td>
+            </tr>
+            <tr>
+              <td>Model C</td>
+              <td class="num">5.2</td>
+              <td class="num">6.0</td>
+              <td class="num">4.8</td>
+              <td class="num">$0.08</td>
+              <td><span class="chip dim">not recommended</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ── SECTION: notes / methodology — delete if unused ── -->
+    <section class="block">
+      <div class="section-head"><h2>Notes &amp; methodology</h2></div>
+      <div class="glass prose">
+        <h3>How to read this</h3>
+        <p>
+          Short paragraphs of context: how candidates were run, what settings
+          were held constant, known caveats. <strong>Bold the load-bearing
+          conclusions</strong> so a skimming client still gets the point.
+        </p>
+        <p>
+          Second paragraph if needed. Keep the whole panel under ~150 words —
+          longer material belongs in a separate doc.
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ── FOOTER ── -->
+  <footer class="site">
+    <div class="wrap">
+      <div>Prepared with ❤️ · <span class="meta">your-site.example</span></div> <!-- ✏️ contact / date -->
+      <div>This page is self-contained — the folder can be zipped and shared as-is.</div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Glitch dust ──
+    // Rules, kept here so edits don't drift off-style:
+    //  • a mix of squares, ALL the same size, aligned to a pixel grid, never rotated
+    //  • mostly one primary color + a few nodes of a secondary color
+    //  • main cluster top-right, spreading down/out; sparse — it "finishes off"
+    //    a composition, it never competes with content
+    //  • it's reminiscent of "rendering" / a work in progress — hence the slow
+    //    dissolve-and-respawn animation (static under prefers-reduced-motion)
+    (function () {
+      var canvas = document.getElementById('dust');
+      if (!canvas || !canvas.getContext) return;
+      var ctx = canvas.getContext('2d');
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var CELL = 9;            // one node = one grid cell (same size everywhere)
+      var nodes = [];
+      var dpr = 1, W = 0, H = 0;
+
+      function isLight() { return document.documentElement.getAttribute('data-theme') === 'light'; }
+      function rnd(a, b) { return a + Math.floor(Math.random() * (b - a + 1)); }
+
+      function makeNode(x, y, now) {
+        return {
+          x: x, y: y,
+          secondary: Math.random() < 0.06,   // "a few nodes of a secondary color"
+          t0: now - Math.random() * 9000,
+          life: 7000 + Math.random() * 11000
+        };
+      }
+
+      // Main cluster top-right, working down and spreading out.
+      // Each cluster is a clumpy random walk on the grid: mostly adjacent steps
+      // (2×2-ish clumps emerge), occasional jump (isolated specks).
+      function seed() {
+        nodes = [];
+        var now = performance.now();
+        var cols = Math.floor(W / CELL), rows = Math.floor(H / CELL);
+        var clusters = [
+          { x: 0.87, y: 0.08, n: 24 },   // main cluster
+          { x: 0.70, y: 0.26, n: 9 },
+          { x: 0.94, y: 0.44, n: 11 },
+          { x: 0.42, y: 0.14, n: 6 },
+          { x: 0.15, y: 0.52, n: 8 },
+          { x: 0.56, y: 0.70, n: 9 },
+          { x: 0.07, y: 0.88, n: 7 },
+          { x: 0.80, y: 0.90, n: 10 }
+        ];
+        clusters.forEach(function (c) {
+          var cx = Math.round(cols * c.x), cy = Math.round(rows * c.y);
+          var x = cx, y = cy;
+          for (var i = 0; i < c.n; i++) {
+            if (Math.random() < 0.18) { x = cx + rnd(-9, 9); y = cy + rnd(-5, 6); }
+            else { x += rnd(-1, 1); y += rnd(-1, 1); }
+            nodes.push(makeNode(x, y, now));
+          }
+        });
+      }
+
+      function resize() {
+        dpr = window.devicePixelRatio || 1;
+        W = window.innerWidth; H = window.innerHeight;
+        canvas.width = Math.round(W * dpr);
+        canvas.height = Math.round(H * dpr);
+        canvas.style.width = W + 'px';
+        canvas.style.height = H + 'px';
+        seed();
+        if (reduced) draw(performance.now());
+      }
+
+      function draw(now) {
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        ctx.clearRect(0, 0, W, H);
+        var light = isLight();
+        ctx.fillStyle = light ? '#000000' : '#ffffff';
+        for (var i = 0; i < nodes.length; i++) {
+          var n = nodes[i];
+          var t = (now - n.t0) / n.life;
+          if (t >= 1) {
+            // respawn drifting slightly down/out — the "rendering" feel
+            var nn = makeNode(n.x + rnd(-3, 3), n.y + rnd(-2, 3), now);
+            nn.t0 = now;
+            nodes[i] = nn; n = nn; t = 0;
+          }
+          var a = t < 0.15 ? t / 0.15 : t > 0.82 ? (1 - t) / 0.18 : 1;
+          var base = n.secondary ? (light ? 0.42 : 0.5) : (light ? 0.12 : 0.14);
+          ctx.globalAlpha = Math.max(0, a) * base;
+          ctx.fillRect(n.x * CELL, n.y * CELL, CELL, CELL);
+        }
+        ctx.globalAlpha = 1;
+      }
+
+      function loop(now) { draw(now); requestAnimationFrame(loop); }
+
+      resize();
+      window.addEventListener('resize', resize);
+      if (!reduced) requestAnimationFrame(loop);
+      // repaint on theme change even when static
+      new MutationObserver(function () { if (reduced) draw(performance.now()); })
+        .observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+    })();
+
+    // Theme toggle: dark is the default; choice persists per-browser.
+    // (localStorage can throw on some file:// setups — always try/catch.)
+    (function () {
+      var root = document.documentElement;
+      var KEY = 'site-theme';
+      try {
+        if (localStorage.getItem(KEY) === 'light') root.setAttribute('data-theme', 'light');
+      } catch (e) { /* no storage — stay dark */ }
+      document.getElementById('themeToggle').addEventListener('click', function () {
+        var light = root.getAttribute('data-theme') === 'light';
+        if (light) root.removeAttribute('data-theme');
+        else root.setAttribute('data-theme', 'light');
+        try { localStorage.setItem(KEY, light ? 'dark' : 'light'); } catch (e) {}
+      });
+    })();
+  </script>
+</body>
+</html>
